@@ -2,7 +2,8 @@
 line-length = 120
 target-version = ["py312"]
 exclude = '''
-/(
+(?x)
+(
     \.git
     | \.hg
     | \.mypy_cache
@@ -13,7 +14,8 @@ exclude = '''
     | build
     | buck-out
     | \.flake8
-)/
+    | app[\\/]fuzzy_pd[\\/]fuzzy\.py$
+)
 '''
 
 [tool.isort]
