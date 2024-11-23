@@ -2,7 +2,7 @@
 
 <link href="{{ url_for('static', filename='css/controller/joystick.css') }}" rel="stylesheet">
 
-<div class="flex flex-col w-full h-full space-y-1">
+<div class="flex flex-col w-full h-full space-y-1 justify-center">
     {{ input("set_point", "Set Point") }}
     {{ input("current_height", "Altura Atual", True) }}
     {{ input("adjustment_factor", "Fator de Ajuste", value=1) }}
