@@ -1,7 +1,7 @@
 let charts = {
     error: null,
     deltaError: null,
-    speed: null,
+    power: null,
     result: null,
 };
 
@@ -97,11 +97,11 @@ socketio.on("plot_delta_error_chart", (data) => {
 });
 
 socketio.on("plot_speed_chart", (data) => {
-    plotChart("speed", exampleData, "speed_chart", "Classificação para variável Altura", "Altura [m]");
+    plotChart("power", data, "power_chart", "Classificação para variável Potência", "Potência");
 });
 
 socketio.on("plot_result_chart", (data) => {
-    plotChart("result", exampleData, "result_chart", "Resposta do Controle Fuzzy PD", "Tempo [s]", "Altura [m]");plotChart("result", exampleData, "result_chart", "Resposta do Controle Fuzzy PD", "Tempo [s]", "Velocidade [Km/h]");
+    plotChart("result", exampleData, "result_chart", "Resposta do Controle Fuzzy PD", "Tempo [s]", "Velocidade [Km/h]");
 })
 
 const exampleData = {
@@ -127,7 +127,7 @@ const exampleData = {
 
 plotChart("error", exampleData, "error_chart", "Classificação para variável Erro", "Erro");
 plotChart("deltaError", exampleData, "delta_error_chart", "Classificação para variável Delta Erro", "Delta Erro");
-plotChart("speed", exampleData, "speed_chart", "Classificação para variável Altura", "Altura [m]");
+plotChart("power", exampleData, "power_chart", "Classificação para variável Potência", "Potência");
 
 const exampleResultData = {
     labels: [0, 10, 20, 30, 40, 50],
