@@ -1,0 +1,11 @@
+.joystick .stick {
+    transition: top 0.3s ease;
+}
+
+.joystick.up .stick {
+    top: 10%;
+}
+
+.joystick.down .stick {
+    top: 54%;
+}
