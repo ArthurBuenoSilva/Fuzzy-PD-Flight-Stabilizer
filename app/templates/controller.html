@@ -1,0 +1,24 @@
+{% from "components/input.html" import input %}
+
+<link href="{{ url_for('static', filename='css/controller/joystick.css') }}" rel="stylesheet">
+
+<div class="flex flex-col w-full h-full space-y-1">
+    {{ input("set_point", "Set Point") }}
+    {{ input("current_height", "Altura Atual") }}
+    {{ input("adjustment_factor", "Fator de Ajuste") }}
+    {{ input("p_mode", "P-Mode") }}
+</div>
+
+<div class="flex flex-col w-full h-full items-center justify-evenly">
+    <div class="flex flex-col items-center">
+        <p class="block mb-1 text-sm font-medium text-gray-900">Controle</p>
+        <div id="joystick" class="joystick w-10 h-20 bg-gray-700 rounded-full flex justify-center items-center cursor-pointer relative">
+            <div id="stick" class="stick w-6 h-6 bg-white rounded-full absolute top-10 left-1/2 transform -translate-x-1/2"></div>
+        </div>
+    </div>
+    <button type="button" class="py-4 px-3 text-gray-700 border border-gray-700 hover:bg-gray-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center">
+        RHS
+    </button>
+</div>
+
+<script src="{{ url_for('static', filename='js/controller/joystick.js') }}"></script>
