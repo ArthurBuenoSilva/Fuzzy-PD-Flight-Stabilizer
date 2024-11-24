@@ -39,6 +39,20 @@ class Fuzzy:
         universe = np.arange(0, 1.01, 0.01)
         self.power = Consequent(universe=universe, label="power")
 
+        # Error membership functions
+        self.error.trapmf([-200.0, -200.0, -1.5, 0.5], "MN")
+        self.error.trimf([-1.5, 0.5, 0], "N")
+        self.error.trimf([-0.5, 0, 0.5], "ZE")
+        self.error.trimf([0, 0.5, 1.5], "P")
+        self.error.trapmf([0.5, 1.5, 200.0, 200.0], "MP")
+
+        # Delta error membership functions
+        self.delta_error.trapmf([-6.0, -6.0, -3.0, -1.0], "MN")
+        self.delta_error.trimf([-3.0, -1.0, 0], "N")
+        self.delta_error.trimf([-1.0, 0, 1.0], "ZE")
+        self.delta_error.trimf([0, 1.0, 3.0], "P")
+        self.delta_error.trapmf([1.0, 3.0, 6.0, 6.0], "MP")
+
     def rule_base(self):
         power_result = [
             'MP', 'MP', 'P', 'M', 'M',
