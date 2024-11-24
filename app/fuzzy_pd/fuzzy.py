@@ -30,10 +30,10 @@ class Fuzzy:
         self.current_height: float = 0
 
     def fuzzification(self):
-        universe = np.arange(0, 100.01, 0.01)
+        universe = np.arange(-200, 200.01, 0.01)
         self.error = Antecedent(universe=universe, label="error")
 
-        universe = np.arange(0, 100.01, 0.01)
+        universe = np.arange(-6, 6.01, 0.01)
         self.delta_error = Antecedent(universe=universe, label="delta_error")
 
         universe = np.arange(0, 1.01, 0.01)
