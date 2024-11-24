@@ -40,18 +40,25 @@ class Fuzzy:
         self.power = Consequent(universe=universe, label="power")
 
         # Error membership functions
-        self.error.trapmf([-200.0, -200.0, -1.5, 0.5], "MN")
-        self.error.trimf([-1.5, 0.5, 0], "N")
-        self.error.trimf([-0.5, 0, 0.5], "ZE")
-        self.error.trimf([0, 0.5, 1.5], "P")
-        self.error.trapmf([0.5, 1.5, 200.0, 200.0], "MP")
+        self.error["MN"] = fuzzy.trapmf(self.error.universe, [-200.0, -200.0, -1.5, 0.5])
+        self.error["N"] = fuzzy.trimf(self.error.universe, [-1.5, -0.5, 0])
+        self.error["ZE"] = fuzzy.trimf(self.error.universe, [-0.5, 0, 0.5])
+        self.error["P"] = fuzzy.trimf(self.error.universe, [0, 0.5, 1.5])
+        self.error["MP"] = fuzzy.trapmf(self.error.universe, [0.5, 1.5, 200.0, 200.0])
 
         # Delta error membership functions
-        self.delta_error.trapmf([-6.0, -6.0, -3.0, -1.0], "MN")
-        self.delta_error.trimf([-3.0, -1.0, 0], "N")
-        self.delta_error.trimf([-1.0, 0, 1.0], "ZE")
-        self.delta_error.trimf([0, 1.0, 3.0], "P")
-        self.delta_error.trapmf([1.0, 3.0, 6.0, 6.0], "MP")
+        self.delta_error["MN"] = fuzzy.trapmf(self.delta_error.universe, [-3.0, -3.0, -1.5, -1.0])
+        self.delta_error["N"] = fuzzy.trimf(self.delta_error.universe, [-1.5, -1.0, 0])
+        self.delta_error["ZE"] = fuzzy.trimf(self.delta_error.universe, [-1.0, 0, 1.0])
+        self.delta_error["P"] = fuzzy.trimf(self.delta_error.universe, [0, 1.0, 1.5])
+        self.delta_error["MP"] = fuzzy.trapmf(self.delta_error.universe, [1.0, 1.5, 3.0, 3.0])
+
+        # Power membership functions
+        self.power["MP"] = fuzzy.trimf(self.power.universe, [0, 0, 0.25])
+        self.power["P"] = fuzzy.trimf(self.power.universe, [0, 0.25, 0.5])
+        self.power["M"] = fuzzy.trimf(self.power.universe, [0.25, 0.5, 0.75])
+        self.power["A"] = fuzzy.trimf(self.power.universe, [0.5, 0.75, 1])
+        self.power["MA"] = fuzzy.trimf(self.power.universe, [0.75, 1, 1])
 
     def rule_base(self):
         power_result = [
