@@ -98,7 +98,7 @@ class Fuzzy:
             control_system.compute()
 
             # Stop adjustment
-            if(abs(current_error) <= 0.5):
+            if (abs(current_error) <= 0.5):
                 self.p_mode = 0.0
                 self.fa = self.stop_adjustment(self.current_height, control_system.output[self.power.label], self.p_mode, 1.01398)
 
@@ -109,10 +109,10 @@ class Fuzzy:
             )
             self.height_history = np.append(self.height_history, self.current_height)
 
-            if (self.current_height > self.set_point): 
+            if (self.current_height > self.set_point):
                 self.p_mode = -3.0
                 self.fa = self.calculate_FA(previous_error)
-            elif (self.current_height < self.set_point): 
+            elif (self.current_height < self.set_point):
                 self.p_mode = 5.0
                 self.fa = self.calculate_FA(previous_error)
 
@@ -120,7 +120,7 @@ class Fuzzy:
             previous_error = current_error
 
     def calculate_FA(self, current_error: float) -> float:
-        return 0.965605 + 0.020605*((current_error) / (100))
-    
+        return 0.965605 + 0.020605 * ((current_error) / (100))
+
     def stop_adjustment(self, current_height: float, power: float, umax: float, h_coefs: float) -> float:
         return (current_height - (power * umax)) / (h_coefs * current_height)
