@@ -82,13 +82,13 @@ class Fuzzy:
         previous_error = self.set_point - self.current_height
 
         time = np.arange(0, 400, 1)
-        self.fa = self.calculate_FA(previous_error)
+        self.fa = 0.98621
         self.p_mode = -3.0 if self.current_height > self.set_point else 5.0
 
         for _ in range(1, np.max(time) + 1):
             # Calculate and input the current error
             current_error = self.set_point - self.current_height
-            control_system.input[self.error.label] = current_error
+            control_system.input[self.error.label] = abs(current_error)
 
             # Calculate and input the current delta error
             current_delta_error = previous_error - current_error
@@ -99,22 +99,21 @@ class Fuzzy:
 
             # Stop adjustment
             if (abs(current_error) <= 0.5):
-                self.p_mode = 0.0
                 self.fa = self.stop_adjustment(self.current_height, control_system.output[self.power.label], self.p_mode, 1.01398)
 
             # Update current height value based on the Transfer Function
-            self.current_height = self.fa * self.current_height * 1.01398 + 0.5 * (
+            new_height = self.fa * self.current_height * 1.01398 + 0.5 * (
                 self.p_mode * control_system.output[self.power.label]
                 + self.p_mode * control_system.output[self.power.label]
             )
+
+            if new_height < self.set_point:
+                self.current_height = new_height
+            else:
+                self.current_height = self.current_height - (new_height - self.current_height)
+
             self.height_history = np.append(self.height_history, self.current_height)
 
-            if (self.current_height > self.set_point):
-                self.p_mode = -3.0
-                self.fa = self.calculate_FA(previous_error)
-            elif (self.current_height < self.set_point):
-                self.p_mode = 5.0
-                self.fa = self.calculate_FA(previous_error)
 
             # Update error
             previous_error = current_error
