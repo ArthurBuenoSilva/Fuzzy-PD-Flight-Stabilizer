@@ -114,7 +114,6 @@ class Fuzzy:
 
             self.height_history = np.append(self.height_history, self.current_height)
 
-
             # Update error
             previous_error = current_error
 
