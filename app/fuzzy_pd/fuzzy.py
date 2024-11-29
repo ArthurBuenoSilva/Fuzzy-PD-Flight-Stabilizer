@@ -40,18 +40,18 @@ class Fuzzy:
         self.power = Consequent(universe=universe, label="power")
 
         # Error membership functions
-        self.error["MN"] = fuzzy.trapmf(self.error.universe, [-100.0, -100.0, -2.5, 0.5])
-        self.error["N"] = fuzzy.trimf(self.error.universe, [-2.5, -0.5, 0])
-        self.error["ZE"] = fuzzy.trimf(self.error.universe, [-0.5, 0, 0.5])
-        self.error["P"] = fuzzy.trimf(self.error.universe, [0, 0.5, 2.5])
-        self.error["MP"] = fuzzy.trapmf(self.error.universe, [0.5, 2.5, 100.0, 100.0])
+        self.error["MN"] = fuzzy.trapmf(self.error.universe, [0, 0, 0.5, 3.0])
+        self.error["N"] = fuzzy.trimf(self.error.universe, [0.5, 3.0, 15.0])
+        self.error["ZE"] = fuzzy.trimf(self.error.universe, [3.0, 15.0, 100.0])
+        self.error["P"] = fuzzy.trimf(self.error.universe, [15.0, 100.0, 300.0])
+        self.error["MP"] = fuzzy.trapmf(self.error.universe, [100.0, 300.0, 1000.0, 1000.0])
 
         # Delta error membership functions
-        self.delta_error["MN"] = fuzzy.trapmf(self.delta_error.universe, [-6.0, -6.0, -4, -1.0])
-        self.delta_error["N"] = fuzzy.trimf(self.delta_error.universe, [-4, -1.0, 0])
-        self.delta_error["ZE"] = fuzzy.trimf(self.delta_error.universe, [-1.0, 0, 1.0])
-        self.delta_error["P"] = fuzzy.trimf(self.delta_error.universe, [0, 1.0, 4])
-        self.delta_error["MP"] = fuzzy.trapmf(self.delta_error.universe, [1.0, 4, 3.0, 3.0])
+        self.delta_error["MN"] = fuzzy.trapmf(self.delta_error.universe, [-1000.0, -100.0, -5, -0.5])
+        self.delta_error["N"] = fuzzy.trimf(self.delta_error.universe, [-5, -0.5, 0])
+        self.delta_error["ZE"] = fuzzy.trimf(self.delta_error.universe, [-0.5, 0, 0.5])
+        self.delta_error["P"] = fuzzy.trimf(self.delta_error.universe, [0, 0.5, 5.0])
+        self.delta_error["MP"] = fuzzy.trapmf(self.delta_error.universe, [0.5, 5, 1000.0, 1000.0])
 
         # Power membership functions
         self.power["MP"] = fuzzy.trimf(self.power.universe, [0, 0, 0.2])
@@ -62,11 +62,11 @@ class Fuzzy:
 
     def rule_base(self):
         power_result = [
-            'M', 'M', 'M', 'A', 'MA',
-            'P', 'P', 'M', 'A', 'MA',
-            'P', 'P', 'M', 'A', 'A',
-            'MP', 'P', 'M', 'A', 'M',
-            'MP', 'P', 'M', 'M', 'M'
+            'MP', 'P', 'M', 'A', 'A',
+            'P', 'M', 'A', 'A', 'MA',
+            'M', 'A', 'A', 'MA', 'MA',
+            'P', 'M', 'A', 'A', 'MA',
+            'MP', 'P', 'M', 'A', 'A'
         ]
 
         # Apply the rules above
