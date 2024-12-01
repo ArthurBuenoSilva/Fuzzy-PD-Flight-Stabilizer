@@ -127,8 +127,8 @@ class Fuzzy:
 
             # Update current height value based on the Transfer Function
             new_height = self.fa * self.current_height * 1.01398 + 0.5 * (
-                    self.p_mode * self.control.output[self.power.label]
-                    + self.p_mode * self.control.output[self.power.label]
+                self.p_mode * self.control.output[self.power.label]
+                + self.p_mode * self.control.output[self.power.label]
             )
 
             if new_height < self.set_point:
