@@ -8,6 +8,7 @@
         <script src="{{ url_for('static', filename='js/tailwind.config.js') }}"></script>
         <script src="{{ url_for('static', filename='js/gridjs.umd.js') }}"></script>
         <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/chartjs-plugin-annotation.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/base/base.js') }}"></script>
         <link href="{{ url_for('static', filename='css/tailwind.css') }}" rel="stylesheet">
         <link href="{{ url_for('static', filename='css/flowbite.min.css') }}" rel="stylesheet">
@@ -34,18 +35,12 @@
             <!-- Content -->
             <div class="flex flex-col w-full h-full">
                 <div class="flex w-full h-full">
-                    <div class="flex w-4/12 h-full p-4 space-x-4 border border-gray-300">
+                    <div class="flex flex-col items-center justify-center w-4/12 h-full p-6 space-x-4 border border-gray-300">
                         {% include 'controller.html' %}
                     </div>
-                    <div class="flex w-4/12 h-full p-4 border border-gray-300">
-                        {% include 'base_rules.html' %}
-                    </div>
-                    <div class="flex w-4/12 h-full p-4 border border-gray-300">
+                    <div class="flex w-8/12 h-full p-4 border border-gray-300">
                         {% include 'result.html' %}
                     </div>
-                </div>
-                <div class="flex w-full h-full p-4 gap-x-8 border border-gray-300">
-                    {% include 'fuzzy.html' %}
                 </div>
             </div>
         </div>
