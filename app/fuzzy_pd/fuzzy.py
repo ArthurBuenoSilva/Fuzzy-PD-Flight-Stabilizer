@@ -11,9 +11,11 @@ from skfuzzy.control import (
     Rule,
 )
 
+from app.extensions import socketio
+
 
 class Fuzzy:
-    def __init__(self, fa: float, p_mode: float):
+    def __init__(self, current_height: float):
         # Fuzzification
         self.error: Antecedent | None = None
         self.delta_error: Antecedent | None = None
@@ -22,18 +24,29 @@ class Fuzzy:
         # Base rules
         self.rules: List = list()
 
+        # Control System
+        self.control: ControlSystemSimulation | None = None
+
         # Defuzzification
-        self.fa: float = fa
-        self.p_mode: float = p_mode
+        self.fa: float = 0.98621
+        self.p_mode: float = 3
         self.set_point: float = 0
         self.height_history: List = list()
-        self.current_height: float = 0
+        self.current_height: float = current_height
+        self.tolerance: float = 0.5
+        self.max_iterations = 10000
+        self.time: float = 0
+        self.time_history: List = list()
+
+        self.fuzzification()
+        self.rule_base()
+        self.control_system()
 
     def fuzzification(self):
-        universe = np.arange(-100, 100.01, 0.01)
+        universe = np.arange(0, 1000.01, 0.01)
         self.error = Antecedent(universe=universe, label="error")
 
-        universe = np.arange(-6, 6.01, 0.01)
+        universe = np.arange(-1000, 1000.01, 0.01)
         self.delta_error = Antecedent(universe=universe, label="delta_error")
 
         universe = np.arange(0, 1.01, 0.01)
@@ -77,34 +90,45 @@ class Fuzzy:
             )
         ]
 
-    def defuzzification(self):
-        control_system = ControlSystemSimulation(ControlSystem(self.rules))
+    def control_system(self):
+        self.control = ControlSystemSimulation(ControlSystem(self.rules))
+
+    def reset_system(self):
+        self.height_history = list()
+        self.time_history = list()
+        self.time = 0
+
+    def defuzzification(self, set_point: float):
+        self.set_point = set_point
         previous_error = self.set_point - self.current_height
 
-        time = np.arange(0, 400, 1)
-        self.fa = 0.98621
-        self.p_mode = -3.0 if self.current_height > self.set_point else 5.0
+        self.reset_system()
 
-        for _ in range(1, np.max(time) + 1):
+        while self.time < self.max_iterations:
             # Calculate and input the current error
             current_error = self.set_point - self.current_height
-            control_system.input[self.error.label] = abs(current_error)
+            self.control.input[self.error.label] = abs(current_error)
 
             # Calculate and input the current delta error
             current_delta_error = previous_error - current_error
-            control_system.input[self.delta_error.label] = current_delta_error
+            self.control.input[self.delta_error.label] = current_delta_error
 
             # Calculate equivalent output
-            control_system.compute()
+            self.control.compute()
 
-            # Stop adjustment
-            if (abs(current_error) <= 0.5):
-                self.fa = self.stop_adjustment(self.current_height, control_system.output[self.power.label], self.p_mode, 1.01398)
+            # Fa adjustment
+            if abs(current_error) <= self.tolerance:
+                self.fa = self.fa_adjustment(
+                    self.current_height,
+                    self.control.output[self.power.label],
+                    self.p_mode,
+                    1.01398
+                )
 
             # Update current height value based on the Transfer Function
             new_height = self.fa * self.current_height * 1.01398 + 0.5 * (
-                self.p_mode * control_system.output[self.power.label]
-                + self.p_mode * control_system.output[self.power.label]
+                self.p_mode * self.control.output[self.power.label]
+                + self.p_mode * self.control.output[self.power.label]
             )
 
             if new_height < self.set_point:
@@ -112,13 +136,56 @@ class Fuzzy:
             else:
                 self.current_height = self.current_height - (new_height - self.current_height)
 
+            # Append current height and time to histories
             self.height_history = np.append(self.height_history, self.current_height)
+            self.time_history = np.append(self.time_history, self.time)
 
-            # Update error
+            if self.time % 10 == 0:
+                socketio.emit('result', {
+                    "labels": self.time_history.astype(float).tolist(),
+                    "memberships": [{
+                        "name": "Altura/Tempo",
+                        "values": self.height_history.astype(float).round(3).tolist(),
+                        "color": "green",
+                    }],
+                    "set_point": float(self.set_point),
+                    "current_height": float(round(self.current_height, 3)),
+                    "fa": float(self.fa),
+                    "p_mode": float(self.p_mode),
+                    "error": abs(float(round(previous_error, 3))),
+                    "min": self.height_history.min() * 0.8 if self.height_history.min() >= 0 else self.height_history.min() * 1.2,
+                    "max": self.height_history.max() * 1.2 if self.height_history.max() >= 0 else self.height_history.max() * 0.8,
+                })
+
+            # Check if height has stabilized
+            if abs(current_error) <= self.tolerance and len(self.height_history) > 10:
+                if np.std(self.height_history[-50:]) < 0.01:
+                    break
+
+            # Update error and increment time
             previous_error = current_error
+            self.time += 1
 
-    def calculate_FA(self, current_error: float) -> float:
-        return 0.965605 + 0.020605 * ((current_error) / (100))
+        return {
+            "labels": self.time_history.astype(float).tolist(),
+            "memberships": [{
+                "name": "Altura/Tempo",
+                "values": self.height_history.astype(float).round(3).tolist(),
+                "color": "green",
+            }],
+            "set_point": float(self.set_point),
+            "current_height": float(round(self.current_height, 3)),
+            "fa": float(self.fa),
+            "p_mode": float(self.p_mode),
+            "error": abs(float(round(previous_error, 3))),
+            "min": self.height_history.min() * 0.8 if self.height_history.min() >= 0 else self.height_history.min() * 1.2,
+            "max": self.height_history.max() * 1.2 if self.height_history.max() >= 0 else self.height_history.max() * 0.8,
+        }
 
-    def stop_adjustment(self, current_height: float, power: float, umax: float, h_coefs: float) -> float:
+    @staticmethod
+    def calculate_fa(current_error: float) -> float:
+        return 0.965605 + 0.020605 * (current_error / 100)
+
+    @staticmethod
+    def fa_adjustment(current_height: float, power: float, umax: float, h_coefs: float) -> float:
         return (current_height - (power * umax)) / (h_coefs * current_height)

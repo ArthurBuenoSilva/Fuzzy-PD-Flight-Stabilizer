@@ -21,10 +21,13 @@ function getData(data) {
     };
 }
 
-function getOptions(title, x, y, min, max) {
+function getOptions(title, x, y, min, max, set_point) {
     return {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+            duration: 0,
+        },
         scales: {
             x: {
                 title: {
@@ -60,91 +63,51 @@ function getOptions(title, x, y, min, max) {
                     weight: "bold",
                 },
             },
+            annotation: {
+                annotations: {
+                    constantLine: {
+                        type: 'line',
+                        yMin: set_point,
+                        yMax: set_point,
+                        borderColor: 'red',
+                        borderWidth: 2,
+                    }
+                }
+            }
         },
     };
 }
 
-function plotChart(chartName, data, canvasId, title, x, y="Pertinência", min=0, max=1) {
+function plotChart(chartName, data, canvasId, title, x, y="Pertinência") {
     const ctx = document.getElementById(canvasId);
 
     if (charts[chartName]) {
         charts[chartName].data.labels = data.labels;
         charts[chartName].data.datasets.forEach((dataset, index) => {
-            dataset.data = data.memberships[index].values;
-        });
-        charts[chartName].update();
+                dataset.data = data.memberships[index].values;
+            }
+        );
+        charts[chartName].options.plugins.annotation.annotations.constantLine.yMax = data.set_point;
+        charts[chartName].options.plugins.annotation.annotations.constantLine.yMin = data.set_point;
+        charts[chartName].options.scales.y.min = 0;
+        charts[chartName].options.scales.y.max = 1000;
+        setInterval(() => {
+            charts[chartName].update('none');
+        }, 750);
         return;
-    }
-
-    if (data.min || data.max) {
-        min = data.min;
-        max = data.max;
     }
 
     charts[chartName] = new Chart(ctx, {
         type: 'line',
         data: getData(data),
-        options: getOptions(title, x, y, min, max),
+        options: getOptions(title, x, y, data.min, data.max, data.set_point),
     });
 }
 
-socketio.on("plot_error_chart", (data) => {
-    plotChart("error", data, "error_chart", "Classificação para variável Erro", "Erro");
-});
-
-socketio.on("plot_delta_error_chart", (data) => {
-    plotChart("deltaError", data, "delta_error_chart", "Classificação para variável Delta Erro", "Delta Erro");
-});
-
-socketio.on("plot_speed_chart", (data) => {
-    plotChart("power", data, "power_chart", "Classificação para variável Potência", "Potência");
-});
-
-socketio.on("plot_result_chart", (data) => {
-    plotChart("result", exampleData, "result_chart", "Resposta do Controle Fuzzy PD", "Tempo [s]", "Velocidade [Km/h]");
+socketio.on("result", (data) => {
+    const ids = ["set_point", "current_height", "error", "fa", "p_mode"]
+    ids.forEach((id) => {
+        document.getElementById(id).value = data[id];
+    })
+    plotChart("result", data, "result_chart", "Resposta do Controle Fuzzy PD", "Tempo [s]", "Altura [m]");
 })
-
-const exampleData = {
-    labels: [0, 10, 20, 30, 40, 50],
-    memberships: [
-        {
-            name: "Low",
-            values: [1, 0.5, 0, 0, 0, 0],
-            color: "red",
-        },
-        {
-            name: "Medium",
-            values: [0, 0.5, 1, 0.5, 0, 0],
-            color: "blue",
-        },
-        {
-            name: "High",
-            values: [0, 0, 0, 0.5, 1, 0.5],
-            color: "green",
-        },
-    ],
-};
-
-plotChart("error", exampleData, "error_chart", "Classificação para variável Erro", "Erro");
-plotChart("deltaError", exampleData, "delta_error_chart", "Classificação para variável Delta Erro", "Delta Erro");
-plotChart("power", exampleData, "power_chart", "Classificação para variável Potência", "Potência");
-
-const exampleResultData = {
-    labels: [0, 10, 20, 30, 40, 50],
-    memberships: [
-        {
-            name: "Altura/Tempo",
-            values: [0, 15, 22, 31, 33, 33],
-            color: "red",
-        },
-        {
-            name: "Set Point",
-            values: [30, 30, 30, 30, 30, 30],
-            color: "green",
-        }
-    ],
-    min: 0,
-    max: 50
-};
-
-plotChart("result", exampleResultData, "result_chart", "Resposta do Controle Fuzzy PD", "Tempo [s]", "Altura [m]");
