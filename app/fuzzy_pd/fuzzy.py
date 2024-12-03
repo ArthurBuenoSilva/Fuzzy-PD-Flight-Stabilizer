@@ -53,8 +53,8 @@ class Fuzzy:
         self.power = Consequent(universe=universe, label="power")
 
         # Error membership functions
-        self.error["MN"] = fuzzy.trapmf(self.error.universe, [0, 0, 0.5, 3.0])
-        self.error["N"] = fuzzy.trimf(self.error.universe, [0.5, 3.0, 15.0])
+        self.error["MN"] = fuzzy.trimf(self.error.universe, [0, 0, 0.5,])
+        self.error["N"] = fuzzy.trimf(self.error.universe, [0, 0.5, 15.0])
         self.error["ZE"] = fuzzy.trimf(self.error.universe, [3.0, 15.0, 100.0])
         self.error["P"] = fuzzy.trimf(self.error.universe, [15.0, 100.0, 300.0])
         self.error["MP"] = fuzzy.trapmf(self.error.universe, [100.0, 300.0, 1000.0, 1000.0])
